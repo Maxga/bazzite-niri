@@ -11,8 +11,8 @@ set -ouex pipefail
 
 # this installs a package from fedora repos
 dnf5 install -y tmux 
-dnf5 copr enable avengemedia/dms
-dnf5 install niri dms
+dnf5 copr -y enable avengemedia/dms
+dnf5 install -y niri dms
 
 # Use a COPR Example:
 #
