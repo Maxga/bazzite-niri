@@ -24,4 +24,4 @@ dnf5 install -y niri dms
 #### Example for enabling a System Unit File
 
 systemctl enable podman.socket
-systemctl --user add-wants niri.service dms
+systemctl --global add-wants niri.service dms
