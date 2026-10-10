@@ -28,7 +28,7 @@ dnf5 install -y \
     pkgconf-pkg-config \
     openssl-devel
 # nodejs
-dnf5 install -y nodejs
+dnf5 install -y nodejs npm
 # git stuff
 dnf5 install -y git-gui gitk
 
