@@ -28,7 +28,7 @@ dnf5 install -y \
     pkgconf-pkg-config \
     openssl-devel
 # git stuff
-sudo dnf5 install -y git-gui gitk
+dnf5 install -y git-gui gitk
 
 # Use a COPR Example:
 #
