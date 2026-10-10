@@ -14,11 +14,14 @@ dnf5 install -y tmux nvim alacritty fuzzel
 dnf5 copr -y enable avengemedia/dms
 dnf5 install -y dms --setopt=install_weak_deps=True
 dnf5 install -y niri
-# Install Rust development toolchain
+# Complete Rust development environment
 dnf5 install -y \
     rust \
     cargo \
-    rustup \
+    rust-analyzer \
+    rustfmt \
+    clippy \
+    rust-src \
     gcc \
     gcc-c++ \
     make \
