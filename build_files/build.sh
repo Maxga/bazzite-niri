@@ -31,6 +31,8 @@ dnf5 install -y \
 dnf5 install -y nodejs npm
 # git stuff
 dnf5 install -y git-gui gitk
+# chat gpt gui
+dnf5 install -y https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm
 
 # Use a COPR Example:
 #
