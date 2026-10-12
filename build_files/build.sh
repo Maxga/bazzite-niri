@@ -34,7 +34,7 @@ dnf5 install -y git-gui gitk
 # chat gpt gui
 dnf5 install -y https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm
 # some dependencies for tdf (cli pdf viewer in rust)
-dn5 install -y fontconfig-devel pkgconf-pkg-config clang
+dnf5 install -y fontconfig-devel pkgconf-pkg-config clang
 
 # Use a COPR Example:
 #
