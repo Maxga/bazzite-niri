@@ -62,9 +62,11 @@ dnf5 --enable-repo=terra install -y \
     umbriel-nightly \
     xdg-desktop-portal-umbriel-nightly \
     noctalia-nightly \
-    xorg-x11-server-Xwayland \
     xdg-desktop-portal-gtk \
     kitty playerctl brightnessctl libnotify orca
+
+# Verify that the image's existing Xwayland installation is available.
+command -v Xwayland
 
 # Refuse to produce an image if the existing WM/shell package identities changed.
 trial_after_wm_rpms="$(rpm -q niri dms | sort)"
@@ -83,5 +85,3 @@ noctalia --version
 
 # DO NOT globally enable Noctalia or Umbriel as a login service.
 # Noctalia is started only by ~/.config/umbriel/config.toml.
-# KEEP your existing final line:
-# systemctl --global add-wants niri.service dms
