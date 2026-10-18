@@ -47,3 +47,41 @@ dnf5 install -y fontconfig-devel pkgconf-pkg-config clang
 
 systemctl enable podman.socket
 systemctl --global add-wants niri.service dms
+
+# Insert after your existing `dnf5 install -y niri` line in build.sh.
+# Runs inside the image build, not on the booted immutable host.
+# Keep all current Niri/DMS installation and systemctl lines.
+
+# Bazzite supplies Terra already. Enable only its regular repository for this
+# transaction; do not enable terra-mesa or import a broad new compositor COPR.
+# Excluding niri/dms also protects a patched Niri package from replacement.
+trial_existing_wm_rpms="$(rpm -q niri dms | sort)"
+dnf5 --enable-repo=terra install -y \
+    --setopt=install_weak_deps=False \
+    --exclude='niri*' --exclude='dms*' \
+    umbriel-nightly \
+    xdg-desktop-portal-umbriel-nightly \
+    noctalia-nightly \
+    xorg-x11-server-Xwayland \
+    xdg-desktop-portal-gtk \
+    kitty playerctl brightnessctl libnotify orca
+
+# Refuse to produce an image if the existing WM/shell package identities changed.
+trial_after_wm_rpms="$(rpm -q niri dms | sort)"
+if [[ "$trial_existing_wm_rpms" != "$trial_after_wm_rpms" ]]; then
+    echo 'Niri/DMS package identity changed; stopping the trial image build.' >&2
+    exit 1
+fi
+unset trial_existing_wm_rpms trial_after_wm_rpms
+
+# Let the RPM own the display-manager session and portal routing.
+test -x /usr/bin/start-umbriel
+test -r /usr/share/wayland-sessions/umbriel.desktop
+test -r /usr/share/xdg-desktop-portal/umbriel-portals.conf
+umbriel --version
+noctalia --version
+
+# DO NOT globally enable Noctalia or Umbriel as a login service.
+# Noctalia is started only by ~/.config/umbriel/config.toml.
+# KEEP your existing final line:
+# systemctl --global add-wants niri.service dms
