@@ -30,16 +30,20 @@ dnf5 install -y \
 # nodejs
 dnf5 install -y nodejs npm
 # jdk
+# Configure the Adoptium repository
 cat > /etc/yum.repos.d/adoptium.repo <<'EOF'
 [Adoptium]
 name=Eclipse Adoptium
 baseurl=https://packages.adoptium.net/artifactory/rpm/fedora/$releasever/$basearch
-enabled=1
+enabled=0
 gpgcheck=1
 gpgkey=https://packages.adoptium.net/artifactory/api/gpg/key/public
 EOF
 
-dnf5 install -y temurin-17-jdk maven
+# Enable Adoptium only for this installation
+dnf5 --enable-repo=Adoptium install -y temurin-17-jdk
+
+# Install Maven from the normally enabled repositories
 dnf5 install -y maven
 # git stuff
 dnf5 install -y git-gui gitk
@@ -68,7 +72,11 @@ systemctl --global add-wants niri.service dms
 # transaction; do not enable terra-mesa or import a broad new compositor COPR.
 # Excluding niri/dms also protects a patched Niri package from replacement.
 trial_existing_wm_rpms="$(rpm -q niri dms | sort)"
-dnf5 --enable-repo=terra install -y \
+dnf5 clean metadata dbcache
+
+dnf5 --refresh --enable-repo=terra \
+    --setopt=terra.skip_if_unavailable=False \
+    install -y \
     --setopt=install_weak_deps=False \
     --exclude='niri*' --exclude='dms*' \
     umbriel-nightly \
