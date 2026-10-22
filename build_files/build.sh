@@ -30,7 +30,16 @@ dnf5 install -y \
 # nodejs
 dnf5 install -y nodejs npm
 # jdk
-dnf5 install -y java-17-openjdk
+cat > /etc/yum.repos.d/adoptium.repo <<'EOF'
+[Adoptium]
+name=Eclipse Adoptium
+baseurl=https://packages.adoptium.net/artifactory/rpm/fedora/$releasever/$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.adoptium.net/artifactory/api/gpg/key/public
+EOF
+
+dnf5 install -y temurin-17-jdk maven
 dnf5 install -y maven
 # git stuff
 dnf5 install -y git-gui gitk
