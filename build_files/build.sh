@@ -31,6 +31,7 @@ dnf5 install -y \
 dnf5 install -y nodejs npm
 # jdk
 dnf5 install -y java-17-openjdk
+dnf5 install -y maven
 # git stuff
 dnf5 install -y git-gui gitk
 # chat gpt gui
