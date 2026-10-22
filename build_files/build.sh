@@ -29,6 +29,8 @@ dnf5 install -y \
     openssl-devel
 # nodejs
 dnf5 install -y nodejs npm
+# jdk
+dn5 install -y java-17-openjdk
 # git stuff
 dnf5 install -y git-gui gitk
 # chat gpt gui
