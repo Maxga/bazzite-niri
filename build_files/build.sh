@@ -51,6 +51,8 @@ dnf5 install -y git-gui gitk
 dnf5 install -y https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm
 # some dependencies for tdf (cli pdf viewer in rust)
 dnf5 install -y fontconfig-devel pkgconf-pkg-config clang
+# for python xrandr control script to set primary display
+dnf5 install -y python3-xlib
 
 # Use a COPR Example:
 #
