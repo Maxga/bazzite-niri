@@ -48,6 +48,8 @@ dnf5 --enable-repo=Adoptium install -y temurin-17-jdk
 dnf5 install -y maven
 # git stuff
 dnf5 install -y git-gui gitk
+# obsidian
+dnf5 install -y syncthing
 # chat gpt gui
 dnf5 install -y https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest/chatgpt.x86_64.rpm
 # some dependencies for tdf (cli pdf viewer in rust)
