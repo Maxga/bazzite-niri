@@ -56,6 +56,8 @@ dnf5 install -y https://persistent.oaistatic.com/codex-app-prod/linux/rpm/latest
 dnf5 install -y fontconfig-devel pkgconf-pkg-config clang
 # for python xrandr control script to set primary display
 dnf5 install -y python3-xlib
+# strace
+dnf5 install -y strace
 
 # Use a COPR Example:
 #
