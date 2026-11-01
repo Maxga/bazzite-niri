@@ -17,12 +17,7 @@ dnf5 install -y dms --setopt=install_weak_deps=True
 dnf5 install -y niri
 # Complete Rust development environment
 dnf5 install -y \
-    rust \
-    cargo \
-    rust-analyzer \
-    rustfmt \
-    clippy \
-    rust-src \
+    rustup \
     gcc \
     gcc-c++ \
     make \
