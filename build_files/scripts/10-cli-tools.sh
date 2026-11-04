@@ -5,8 +5,14 @@ set -euo pipefail
 dnf5 install -y \
     tmux \
     nvim \
-    alacritty \
     ripgrep \
     git-gui \
     gitk \
     strace
+
+# wezterm and zsh
+dnf5 -y copr enable wezfurlong/wezterm-nightly
+dnf5 install -y wezterm
+dn5 install -y zsh
+# disable copr again to not have it in image
+dnf5 copr -y disable wezfurlong/wezterm-nightly
