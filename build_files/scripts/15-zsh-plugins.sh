@@ -9,7 +9,7 @@ fi
 plugin_dir=/usr/share/zsh/merged-config/plugins
 install -d -m 0755 "$plugin_dir"
 
-git clone --depth 1 --branch 2026-08-04 \
+git clone --depth 1 \
     https://github.com/marlonrichert/zsh-autocomplete.git \
     "$plugin_dir/zsh-autocomplete"
 
