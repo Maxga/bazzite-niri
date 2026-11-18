@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 # needed for sunshine homebrew
-dnf5 install -y libayatana-appindicator-gtk3
+dnf5 install -y libayatana-appindicator-gtk3 miniupnpc
 
 # Podman API socket
 systemctl enable podman.socket
