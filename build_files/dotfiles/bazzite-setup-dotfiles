@@ -10,7 +10,7 @@ mkdir -p "$state_dir"
 exec 9>"$state_dir/setup.lock"
 flock 9
 
-if [[ -f "$state_dir/subrepos-v1" && -f "$state_dir/zsh-v1" && -e "$config_dir/.git" &&
+if [[ -f "$state_dir/subrepos-v1" && -e "$config_dir/.git" &&
       -e "$config_dir/nvim/.git" && -e "$config_dir/tmux/.git" ]]; then
     exit 0
 fi
@@ -61,18 +61,4 @@ git -C "$config_dir" submodule foreach --quiet '
 '
 
 touch "$state_dir/subrepos-v1"
-
-if [[ ! -f "$state_dir/zsh-v1" ]]; then
-    # The account shell is set by the privileged user@.service startup hook.
-    # Set both tmux options after the user's other settings have been loaded.
-    for tmux_config in "$config_dir/tmux/tmux.conf" "$HOME/.tmux.conf"; do
-        if [[ "$tmux_config" == "$HOME/.tmux.conf" &&
-              ( ! -e "$tmux_config" || "$tmux_config" -ef "$config_dir/tmux/tmux.conf" ) ]]; then
-            continue
-        fi
-        printf '\n# Default shell configured by Bazzite one-time setup\nset -g default-shell /usr/bin/zsh\nset -g default-command ""\n' >> "$tmux_config"
-    done
-    touch "$state_dir/zsh-v1"
-fi
-
 echo "==> Dotfiles, Neovim, and tmux repositories ready in $config_dir"
