@@ -1,7 +1,6 @@
 [Unit]
 Description=Initialize the user's config from the bundled dotfiles repository
 ConditionUser=!@system
-ConditionPathExists=!%h/.config/.git
 Before=graphical-session-pre.target niri.service dms.service
 
 [Service]

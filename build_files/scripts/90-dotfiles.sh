@@ -13,6 +13,8 @@ fi
 dnf5 install -y git-core rsync util-linux
 
 install -Dm644 "$DOTFILES_DIR/dotfiles.bundle" /usr/share/bazzite-dotfiles/dotfiles.bundle
+install -Dm644 "$DOTFILES_DIR/nvim.bundle" /usr/share/bazzite-dotfiles/nvim.bundle
+install -Dm644 "$DOTFILES_DIR/tmux.bundle" /usr/share/bazzite-dotfiles/tmux.bundle
 install -Dm755 "$DOTFILES_DIR/bazzite-setup-dotfiles" /usr/bin/bazzite-setup-dotfiles
 install -Dm644 "$DOTFILES_DIR/bazzite-dotfiles.service" /usr/lib/systemd/user/bazzite-dotfiles.service
 

@@ -56,11 +56,45 @@ jobs:
           fetch-depth: 0
           path: dotfiles-source
 
-      - name: Package dotfiles repository
+      - name: Checkout Neovim config
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          repository: MKoseler/nvimconf
+          ssh-key: ${{ secrets.NVIM_DEPLOY_KEY }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: dotfiles-source/nvim
+
+      - name: Checkout tmux config
+        if: github.event_name != 'pull_request'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
+        with:
+          repository: MKoseler/tmuxconf
+          ssh-key: ${{ secrets.TMUX_DEPLOY_KEY }}
+          persist-credentials: false
+          fetch-depth: 0
+          path: dotfiles-source/tmux
+
+      - name: Package dotfiles repositories
         if: github.event_name != 'pull_request'
         shell: bash
         run: |
           set -euo pipefail
+          for name in nvim tmux; do
+            read -r mode type revision path < <(git -C dotfiles-source ls-tree HEAD -- "$name")
+            if [[ "$mode" != 160000 ]]; then
+              echo "Expected $name to be a Git submodule in MKoseler/dotfiles" >&2
+              exit 1
+            fi
+            source="dotfiles-source/$name"
+            branch=$(git -C "$source" symbolic-ref --short HEAD)
+            # Preserve the parent's recorded commit on a usable local branch.
+            git -C "$source" switch -C "$branch" "$revision"
+            git -C "$source" bundle create \
+              "$GITHUB_WORKSPACE/build_files/dotfiles/$name.bundle" \
+              HEAD "refs/heads/$branch"
+          done
           branch=$(git -C dotfiles-source symbolic-ref --short HEAD)
           git -C dotfiles-source bundle create \
             "$GITHUB_WORKSPACE/build_files/dotfiles/dotfiles.bundle" \
