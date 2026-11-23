@@ -3,4 +3,4 @@ _build_*
 output
 _build-*/**
 dotfiles-source/
-build_files/dotfiles/dotfiles.bundle
+build_files/dotfiles/*.bundle

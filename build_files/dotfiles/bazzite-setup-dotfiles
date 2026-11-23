@@ -3,30 +3,62 @@ set -euo pipefail
 
 config_dir="$HOME/.config"
 state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/bazzite-dotfiles"
+bundle_dir=/usr/share/bazzite-dotfiles
 
 # Serialize service startup and manual invocation for this user.
 mkdir -p "$state_dir"
 exec 9>"$state_dir/setup.lock"
 flock 9
 
-# Moving .git into place completes setup. Subsequent logins keep local edits.
-if [[ -e "$config_dir/.git" || -L "$config_dir/.git" ]]; then
-    echo "==> $config_dir already has Git metadata; skipping dotfiles setup"
+if [[ -f "$state_dir/subrepos-v1" && -e "$config_dir/.git" &&
+      -e "$config_dir/nvim/.git" && -e "$config_dir/tmux/.git" ]]; then
     exit 0
 fi
 
 work_dir=$(mktemp -d "$HOME/.bazzite-dotfiles.XXXXXX")
 trap 'rm -rf -- "$work_dir"' EXIT
 
-git clone --quiet -- /usr/share/bazzite-dotfiles/dotfiles.bundle "$work_dir/repo"
-git -C "$work_dir/repo" remote set-url origin git@github.com:MKoseler/dotfiles.git
+merge_repository() {
+    local name="$1" destination="$2" origin="$3" revision="${4:-}"
+    local source="$work_dir/$name"
 
-mkdir -p "$config_dir"
-# Merge directories, replace conflicting paths, and retain destination-only files.
-# --ignore-times also replaces files whose size and timestamp happen to match.
-rsync -rlpt --ignore-times --force --omit-dir-times \
-    --exclude='/.git/' "$work_dir/repo/" "$config_dir/"
+    # Also handles a parent already initialized by the first version of setup.
+    if [[ -e "$destination/.git" || -L "$destination/.git" ]]; then
+        git -C "$destination" remote set-url origin "$origin"
+        return
+    fi
 
-# Keep the index and history from the clone so normal git pull/push work.
-mv -- "$work_dir/repo/.git" "$config_dir/.git"
-echo "==> Dotfiles installed in $config_dir"
+    git clone --quiet -- "$bundle_dir/$name.bundle" "$source"
+    git -C "$source" remote set-url origin "$origin"
+    if [[ -n "$revision" ]]; then
+        # Only the temporary clone is reset. Existing user repos keep their work.
+        git -C "$source" reset --hard "$revision"
+    fi
+
+    mkdir -p "$destination"
+    # Merge directories and retain destination-only files, including hidden files.
+    rsync -rlpt --ignore-times --force --omit-dir-times \
+        --exclude='/.git/' "$source/" "$destination/"
+    mv -- "$source/.git" "$destination/.git"
+}
+
+merge_repository dotfiles "$config_dir" git@mkoseler:MKoseler/dotfiles.git
+
+for name in nvim tmux; do
+    read -r mode type revision path < <(git -C "$config_dir" ls-tree HEAD -- "$name")
+    if [[ "$mode" != 160000 ]]; then
+        echo "Expected $name to be a Git submodule in $config_dir" >&2
+        exit 1
+    fi
+    merge_repository "$name" "$config_dir/$name" \
+        "git@mkoseler:MKoseler/${name}conf.git" "$revision"
+done
+
+# Register existing nested clones without changing the tracked .gitmodules file.
+git -C "$config_dir" submodule init -- nvim tmux
+git -C "$config_dir" submodule foreach --quiet '
+    git -C "$toplevel" config "submodule.$name.url" "$(git remote get-url origin)"
+'
+
+touch "$state_dir/subrepos-v1"
+echo "==> Dotfiles, Neovim, and tmux repositories ready in $config_dir"
