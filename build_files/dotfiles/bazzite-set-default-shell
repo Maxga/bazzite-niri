@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+user_id="${1:?Expected a user ID}"
+[[ "$user_id" =~ ^[0-9]+$ ]]
+
+# Only local regular accounts participate, including accounts created later.
+uid_min=$(awk '$1 == "UID_MIN" {print $2; exit}' /etc/login.defs)
+uid_max=$(awk '$1 == "UID_MAX" {print $2; exit}' /etc/login.defs)
+if (( user_id < ${uid_min:-1000} || user_id > ${uid_max:-60000} )); then
+    exit 0
+fi
+account=$(getent -s files passwd "$user_id") || exit 0
+IFS=: read -r user_name password uid gid comment home current_shell <<< "$account"
+case "$current_shell" in
+    */nologin|*/false) exit 0 ;;
+esac
+
+state_dir=/var/lib/bazzite-dotfiles/shells
+install -d -m 0755 "$state_dir"
+exec 9>"$state_dir/$user_id.lock"
+flock 9
+marker="$state_dir/$user_id-$user_name"
+if [[ -f "$marker" ]]; then
+    exit 0
+fi
+
+test -x /usr/bin/zsh
+if [[ "$current_shell" != /usr/bin/zsh ]]; then
+    usermod --shell /usr/bin/zsh "$user_name"
+fi
+touch "$marker"
