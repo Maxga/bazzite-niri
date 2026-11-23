@@ -1,0 +1,13 @@
+[Unit]
+Description=Initialize the user's config from the bundled dotfiles repository
+ConditionUser=!@system
+ConditionPathExists=!%h/.config/.git
+Before=graphical-session-pre.target niri.service dms.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bazzite-setup-dotfiles
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target

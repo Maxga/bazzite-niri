@@ -2,3 +2,5 @@ cosign.key
 _build_*
 output
 _build-*/**
+dotfiles-source/
+build_files/dotfiles/dotfiles.bundle

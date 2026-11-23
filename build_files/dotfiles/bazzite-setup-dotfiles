@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+config_dir="$HOME/.config"
+state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/bazzite-dotfiles"
+
+# Serialize service startup and manual invocation for this user.
+mkdir -p "$state_dir"
+exec 9>"$state_dir/setup.lock"
+flock 9
+
+# Moving .git into place completes setup. Subsequent logins keep local edits.
+if [[ -e "$config_dir/.git" || -L "$config_dir/.git" ]]; then
+    echo "==> $config_dir already has Git metadata; skipping dotfiles setup"
+    exit 0
+fi
+
+work_dir=$(mktemp -d "$HOME/.bazzite-dotfiles.XXXXXX")
+trap 'rm -rf -- "$work_dir"' EXIT
+
+git clone --quiet -- /usr/share/bazzite-dotfiles/dotfiles.bundle "$work_dir/repo"
+git -C "$work_dir/repo" remote set-url origin git@github.com:MKoseler/dotfiles.git
+
+mkdir -p "$config_dir"
+# Merge directories, replace conflicting paths, and retain destination-only files.
+# --ignore-times also replaces files whose size and timestamp happen to match.
+rsync -rlpt --ignore-times --force --omit-dir-times \
+    --exclude='/.git/' "$work_dir/repo/" "$config_dir/"
+
+# Keep the index and history from the clone so normal git pull/push work.
+mv -- "$work_dir/repo/.git" "$config_dir/.git"
+echo "==> Dotfiles installed in $config_dir"
